@@ -25,7 +25,7 @@ public class GroundEntity : Entity {
         sizeYOnly = true;
         rotation = Random.Range( 0, 4 ) * 90;
 
-        tint = Random.ColorHSV( 0, 1 );
+        // tint = Random.ColorHSV( 0, 1 );
 
         if ( subtypeName != ROCK_GROUND ) {
             absorbedMax = DEFAULT_ABSORBED_MAX_FOR_SOIL;

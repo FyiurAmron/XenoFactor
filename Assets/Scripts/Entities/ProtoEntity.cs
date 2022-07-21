@@ -14,7 +14,7 @@ public class ProtoEntity {
 
     public float size = 1; // [0,1]
     public float rotation = 0; // degrees
-    public Color? tint = null;
+    // public Color? tint = null;
     
     public int age; // in ticks-hours 
 

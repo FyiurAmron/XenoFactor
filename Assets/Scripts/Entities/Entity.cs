@@ -60,10 +60,13 @@ public class Entity : ProtoEntity, TimeAware {
         EntityComponent entityComponent = go.AddComponent<EntityComponent>();
         entityComponent.properties = this;
         updateTransform();
+        
+        /*
         if ( tint != null ) {
             go.transform.GetChild( 0 ).GetComponent<Renderer>().material
               .setColor( UnityConst.EMISSION_COLOR_KEYWORD, tint.Value );
         }
+        */ 
 
         return go;
     }
