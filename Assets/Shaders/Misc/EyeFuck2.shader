@@ -1,4 +1,4 @@
-Shader "Custom URP/EyeFuck1"
+Shader "URP Misc/EyeFuck2"
 {
     Properties {}
 
@@ -36,7 +36,7 @@ Shader "Custom URP/EyeFuck1"
 
             half4 frag(Attributes IN) : SV_Target
             {
-                float4 wave = sin(IN.positionOS);
+                float4 wave = sin(TransformObjectToHClip(IN.positionOS.xyz));
                 wave[3] = 1;
                 return wave;
             }

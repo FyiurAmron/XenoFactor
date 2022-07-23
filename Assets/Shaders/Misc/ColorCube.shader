@@ -1,4 +1,4 @@
-Shader "Custom URP/Color Cube"
+Shader "URP Misc/Color Cube"
 {
     Properties {}
 

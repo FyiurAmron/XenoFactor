@@ -1,4 +1,4 @@
-Shader "Custom URP/FBM Perlin Noise"
+Shader "URP Custom/FBM Perlin Noise Per Vertex"
 {
     Properties
     {
@@ -28,7 +28,7 @@ Shader "Custom URP/FBM Perlin Noise"
         [HDR] [MainColor] _colorMultiplicative( "Color Multiplicative", Color ) = ( 1.0, 1.0, 1.0, 1.0 )
         [HDR] _colorAdditive( "Color Additive", Color ) = ( 0.0, 0.0, 0.0, 0.0 )
         
-        [Space(30)] [Header(Other)] [Toggle] _( "internal Unity options", Int ) = 0
+        [Space(30)] [Header(Other)] [Toggle] _( "Other options", Int ) = 0
     }
 
     Subshader
@@ -60,27 +60,14 @@ Shader "Custom URP/FBM Perlin Noise"
             struct Attributes
             {
                 float4 positionOS : POSITION;
-                // float2 uv : TEXCOORD0;
             };
 
             struct Varyings
             {
                 float4 positionHCS : SV_POSITION;
                 float3 positionWS : WS_POSITION;
-                // float2 uv : TEXCOORD0;
+                float noise : NOISE;
             };
-
-            Varyings vert(Attributes IN)
-            {
-                float3 inPos = IN.positionOS.xyz;
-
-                Varyings OUT;
-                OUT.positionHCS = TransformObjectToHClip(inPos);
-                OUT.positionWS = TransformObjectToWorld(inPos);
-                // OUT.uv = IN.uv;
-
-                return OUT;
-            }
 
             float2 hash(float2 v2) // result in range [-1,1) in both X,Y
             {
@@ -94,7 +81,7 @@ Shader "Custom URP/FBM Perlin Noise"
                 return dot( hash( l + v ), r - v );
             }
 
-            float fbm(float2 p)
+            float fbm(float2 p) // range [0,1] in both X,Y
             {
                 float value = _initialValue;
                 float freq = _initialFrequency;
@@ -125,15 +112,29 @@ Shader "Custom URP/FBM Perlin Noise"
                 return pow(clamp(value, -1.0, 1.0) * 0.5 + 0.5, _resultPowerExponent);
             }
 
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                
+                float3 posOS = IN.positionOS.xyz;
+
+                float3 posWS = TransformObjectToWorld(posOS);
+                OUT.noise = fbm(posWS.xz);
+                posWS.y += OUT.noise - 0.5;
+                OUT.positionHCS = TransformWorldToHClip(posWS);
+                
+                return OUT;
+            }
+
             half4 frag(Varyings IN) : SV_Target
             {
-                float c = fbm(IN.positionWS.xz);
+                float noise = IN.noise;
 
                 float4 baseColor = (_1bit == 1)
-                           ? (c < _1bitThreshold)
+                           ? (noise < _1bitThreshold)
                                  ? 0
                                  : 1
-                           : float4(c, c, c, c);
+                           : float4(noise, noise, noise, 1);
 
                 return baseColor * _colorMultiplicative + _colorAdditive;
             }
