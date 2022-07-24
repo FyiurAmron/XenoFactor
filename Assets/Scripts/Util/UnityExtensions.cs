@@ -1,7 +1,7 @@
+namespace Util {
+
 using System.Collections.Generic;
 using UnityEngine;
-
-namespace Util {
 
 public static class IListUnityExtensions {
     public static IList<T> shuffle<T>( this IList<T> list ) {
@@ -24,7 +24,7 @@ public static class MaterialExtensions {
             material.DisableKeyword( shaderKeyword );
         }
     }
-    
+
     public static void toggleKeyword( this Material material, string shaderKeyword ) {
         bool nextState = !material.IsKeywordEnabled( shaderKeyword );
         if ( nextState ) {
@@ -35,21 +35,42 @@ public static class MaterialExtensions {
     }
 
     public static void setColor( this Material material, string shaderKeyword, Color color ) {
-         material.SetColor( shaderKeyword, color );
+        material.SetColor( shaderKeyword, color );
     }
 }
 
 public static class ObjectExtensions {
-    public static T orIfNull<T>( this T t, T other ) where T : Object {
-        return ( t != null ) ? t : other;
+    public static T orIfNull<T>( this T t, T other ) where T : Object => ( t != null ) ? t : other;
+
+    public static bool isRealNull( this Object o ) => ReferenceEquals( o, null );
+
+    public static T orIfRealNull<T>( this T t, T other ) => ReferenceEquals( t, null ) ? other : t;
+}
+
+public enum EulerAxis {
+    X,
+    Y,
+    Z,
+}
+
+public static class Vector3Extensions {
+    public static Vector3 vector3ForEulerAxis( EulerAxis eulerAxis ) =>
+        eulerAxis switch {
+            EulerAxis.X => Vector3.right,
+            EulerAxis.Y => Vector3.up,
+            EulerAxis.Z => Vector3.forward,
+        };
+
+    public static Quaternion quaternionFromEulerAxis( EulerAxis eulerAxis, float value ) {
+        return Quaternion.AngleAxis( value, vector3ForEulerAxis( eulerAxis ) );
     }
     
-    public static bool isRealNull( this Object o ) {
-        return ReferenceEquals( o, null );
-    }
-    
-    public static T orIfRealNull<T>( this T t, T other ) {
-        return ReferenceEquals( t, null ) ? other : t;
+    public static Quaternion asEulerToQuaternion( this Vector3 vector3,
+                                                  EulerAxis first, EulerAxis second, EulerAxis third ) {
+        return
+            quaternionFromEulerAxis( third, vector3.z ) *
+            quaternionFromEulerAxis( second, vector3.y ) *
+            quaternionFromEulerAxis( first, vector3.x );
     }
 }
 
